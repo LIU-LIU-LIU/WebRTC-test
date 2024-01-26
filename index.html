@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebRTC-Home</title>
+    <link rel="stylesheet" href="src/main.css">
+</head>
+<body>
+
+<div class="container"> 
+    <div class="video-container">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay controls></video>
+        <br>
+        <button id="up" onclick="upload_f()">采集流</button>
+        <button id="do" onclick="download_f()">接收流</button>
+    </div>
+
+    <div class="chat-container">
+      <input id="room_url" type="text"/><br>
+      <button id="copy_url" onclick="copyToClipboard()">复制URL到剪切板</button>
+
+        <textarea id="chatBox" readonly></textarea>
+        <input type="text" id="chatInput" placeholder="输入消息">
+        <button onclick="sendMessage()">发送消息</button>
+    </div>
+</div> 
+
+<div id="logContainer">
+    <h3>日志</h3>
+    <textarea id="log" readonly style="width:100%; height:100px;"></textarea>
+</div>
+
+
+<script src="src/peerjs.min.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    justify-content: space-between; /* 更改为 space-between 来分配额外空间 */
+    align-items: start;
+    gap: 20px;
+}
+
+.video-container {
+    flex: 1; /* 视频容器现在将占用可用空间的大部分 */
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+    max-width: 70%; /* 最大宽度限制为70% */
+}
+
+.chat-container {
+    flex: 0 1 30%; /* 聊天栏将尝试占据剩下的30%空间 */
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+video {
+    max-width: 100%; /* 限制最大宽度，保持其原始比例 */
+    height: auto;
+    border-radius: 8px;
+}
+
+#chatBox, #chatInput, #room_url {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+#chatBox {
+	max-height: 600px;
+    height: 300px;
+    overflow-y: auto;
+    resize: vertical;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .video-container, .chat-container {
+        width: 100%;
+    }
+}
+
+button {
+    color: #fff;
+    background: #007bff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:active {
+    background-color: #004085;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
+}
