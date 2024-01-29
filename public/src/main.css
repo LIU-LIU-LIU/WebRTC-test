@@ -65,6 +65,17 @@ video {
     }
 }
 
+#statusContainer {
+    display: flex; /* 使用 flex 布局 */
+    justify-content: space-between; /* 分散对齐 */
+    margin-bottom: 10px; /* 底部间距 */
+}
+
+.status-info {
+    margin-right: 20px; /* 右侧间距 */
+}
+
+
 button {
     color: #fff;
     background: #007bff;

@@ -1,0 +1,38 @@
+{
+  "name": "webrtc",
+  "version": "1.0.0",
+  "description": "一个webrtc技术的测试页",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LIU-LIU-LIU/WebRTC-test.git"
+  },
+  "keywords": [
+    "webrtc"
+  ],
+  "author": "AHA",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LIU-LIU-LIU/WebRTC-test/issues"
+  },
+  "homepage": "https://github.com/LIU-LIU-LIU/WebRTC-test#readme",
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "peer": "^1.0.2",
+    "peerjs": "^1.5.2"
+  },
+  "devDependencies": {
+    "css-loader": "^6.9.1",
+    "dotenv-webpack": "^8.0.1",
+    "html-webpack-plugin": "^5.6.0",
+    "node-sass": "^9.0.0",
+    "sass-loader": "^14.0.0",
+    "style-loader": "^3.3.4",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

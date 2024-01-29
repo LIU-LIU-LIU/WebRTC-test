@@ -1,8 +1,12 @@
+import Peer from 'peerjs';
+import './main.css';
+
 let peer;
 let peer_id;
 let other_peer_id; //对方的PeerID
 let localStream;
 let dataConnection = null; // 存储数据连接
+let rtcConn;//底层的 RTCPeerConnection 对象
 
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -18,7 +22,31 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initPeer(savedPeerId = null, roomId = null) {
-    peer = new Peer(savedPeerId);
+    const iceServers = [];
+    
+	// 如果.env中定义了STUN服务器，添加到iceServers
+    if (process.env.STUN_URL) {
+        iceServers.push({ urls: process.env.STUN_URL });
+    }
+	
+    // 如果.env中定义了TURN服务器，添加到iceServers
+    if (process.env.TURN_URL && process.env.TURN_USER && process.env.TURN_CRED) {
+        iceServers.push({
+            urls: process.env.TURN_URL,
+            username: process.env.TURN_USER,
+            credential: process.env.TURN_CRED
+        });
+    }
+	
+	peer = new Peer(savedPeerId, {
+        host: '/', // 使用相对路径
+        port: location.port, // 使用当前窗口的端口
+		path: process.env.PEERJS_PATH,
+		secure: location.protocol === 'https:', // 如果是 HTTPS，则设置为 true
+		key: process.env.PEERJS_KEY,
+		config: { 'iceServers': iceServers }
+	});
+
     peer.on('open', (id) => {
         updateLog("Peer 已打开，ID:", id);
         sessionStorage.setItem('savedPeerId', id);
@@ -65,6 +93,7 @@ function initPeer(savedPeerId = null, roomId = null) {
         }
     });
 }
+
 
 //链接建立
 function setupDataConnection() {
@@ -195,6 +224,9 @@ function download_f() {
             remoteVideo.play().catch(err => {
                 updateLog('自动播放失败:', err);
             });
+			//在相应的回调中获取 RTCPeerConnection 对象
+			//rtcConn = call.peerConnection;
+			//updateStatus(rtcConn);
         });
 
         call.on('error', (err) => {
@@ -214,3 +246,43 @@ function updateLog(...args) {
     logElement.scrollTop = logElement.scrollHeight; // 滚动到底部
 }
 
+
+function updateStatus(rtcConn){
+	// 更新连接状态
+    rtcConn.onconnectionstatechange = function() {
+        document.getElementById('status').value = ('连接状态：' + rtcConn.connectionState);
+    };
+
+	// 更新连接模式
+	rtcConn.onicecandidate = function(event) {
+		if (event.candidate) {
+			let mode;
+			if (event.candidate.type === 'relay') {
+				mode = '通过 TURN 服务器中继';
+				// 显示详细的 ICE 候选信息
+				let details = `候选类型: ${event.candidate.type}, 地址: ${event.candidate.address}, 端口: ${event.candidate.port}, 协议: ${event.candidate.protocol}`;
+				document.getElementById('mode').value = '连接模式：' + mode + '，' + details;
+			} else {
+				mode = 'P2P 直连';
+				document.getElementById('mode').value = '连接模式：' + mode;
+			}
+		}
+	};
+
+
+    // 更新连接速率（这需要定期更新，例如每秒）
+    setInterval(() => {
+        rtcConn.getStats(null).then(stats => {
+            stats.forEach(report => {
+                if (report.type === 'inbound-rtp' && !report.isRemote) {
+                    const currentSpeed = report.bytesReceived / report.timestamp;
+                    document.getElementById('speed').value = ('下载速率：' + currentSpeed.toFixed(2) + ' bytes/s');
+                }
+                if (report.type === 'outbound-rtp' && !report.isRemote) {
+                    const currentSpeed = report.bytesSent / report.timestamp;
+                    document.getElementById('speed').value = ('上传速率：' + currentSpeed.toFixed(2) + ' bytes/s');
+                }
+            });
+        });
+    }, 1000);
+}
