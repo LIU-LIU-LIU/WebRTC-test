@@ -19,6 +19,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initPeer(savedPeerId, roomId);
+	
+	// 设置按钮事件
+    document.getElementById('up').addEventListener('click', upload_f);
+    document.getElementById('do').addEventListener('click', download_f);
+    document.getElementById('copy_url').addEventListener('click', copyToClipboard);
+    document.getElementById('sendMessage').addEventListener('click', sendMessage);
+    document.getElementById('chatInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // 阻止默认的换行行为
+            sendMessage(); // 调用发送消息的函数
+        }
+    });
+	
 });
 
 function initPeer(savedPeerId = null, roomId = null) {
