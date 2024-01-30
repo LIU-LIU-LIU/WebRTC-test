@@ -186,10 +186,17 @@ async function upload_f() {
         try {
             localStream = await navigator.mediaDevices.getDisplayMedia({
                 video: true,
-                audio: true
+                audio: {
+					echoCancellation: false, // 开启回声消除
+					noiseSuppression: false, // 开启噪声抑制
+					autoGainControl: false, // 开启自动增益控制
+					sampleRate: 48000, // 设置较高的采样率
+					sampleSize: 24,		//采样位数
+					channelCount: 2 // 设置双声道
+				}
             });
             document.getElementById('localVideo').srcObject = localStream;
-
+			
             // 为每个轨道添加结束事件的监听器
             localStream.getTracks().forEach(track => {
                 track.onended = () => {
@@ -216,6 +223,21 @@ async function upload_f() {
     const call = peer.call(other_peer_id, localStream);
     updateLog("呼叫对方，Peer ID:", other_peer_id);
 
+	// 获取RTCPeerConnection实例
+    const peerConnection = call.peerConnection;
+
+    // 找到音频轨道的RTCRtpSender
+    const audioTrack = localStream.getAudioTracks()[0];
+    const sender = peerConnection.getSenders().find(s => s.track === audioTrack);
+
+    // 修改参数
+    const params = sender.getParameters();
+    if (!params.encodings) {
+        params.encodings = [{}];
+    }
+    params.encodings[0].maxBitrate = 128000;
+    sender.setParameters(params);
+
     call.on('error', (err) => {
         updateLog('呼叫错误:', err);
     });
@@ -238,8 +260,8 @@ function download_f() {
                 updateLog('自动播放失败:', err);
             });
 			//在相应的回调中获取 RTCPeerConnection 对象
-			//rtcConn = call.peerConnection;
-			//updateStatus(rtcConn);
+			rtcConn = call.peerConnection;
+			updateStatus(rtcConn);
         });
 
         call.on('error', (err) => {
