@@ -165,6 +165,7 @@ function sendMessage() {
     let chatBox = document.getElementById('chatBox');
     chatBox.value += '我: ' + message + '\n';
 
+	chatBox.scrollTop = chatBox.scrollHeight; // 滚动到底部
     chatInput.value = ''; // 清空输入框
 }
 
