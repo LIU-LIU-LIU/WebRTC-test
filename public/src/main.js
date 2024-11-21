@@ -57,7 +57,7 @@ function initPeer(savedPeerId = null, roomId = null) {
 		path: process.env.PEERJS_PATH,
 		secure: location.protocol === 'https:', // 如果是 HTTPS，则设置为 true
 		key: process.env.PEERJS_KEY,
-		config: { 'iceServers': iceServers }
+        config: { 'iceServers': iceServers, 'iceTransportPolicy': 'all' } // 设置为 "all" 允许P2P和中继，设置为 "relay" 则强制使用TURN
 	});
 
     peer.on('open', (id) => {
@@ -224,9 +224,11 @@ async function upload_f() {
     const call = peer.call(other_peer_id, localStream);
     updateLog("呼叫对方，Peer ID:", other_peer_id);
 
+
 	// 获取RTCPeerConnection实例
     const peerConnection = call.peerConnection;
-
+	updateStatus(peerConnection);
+	updateLog('启用状态更新');
     // 找到音频轨道的RTCRtpSender
     const audioTrack = localStream.getAudioTracks()[0];
     const sender = peerConnection.getSenders().find(s => s.track === audioTrack);
@@ -263,6 +265,7 @@ function download_f() {
 			//在相应的回调中获取 RTCPeerConnection 对象
 			rtcConn = call.peerConnection;
 			updateStatus(rtcConn);
+			updateLog('启用状态更新');
         });
 
         call.on('error', (err) => {
@@ -282,43 +285,53 @@ function updateLog(...args) {
     logElement.scrollTop = logElement.scrollHeight; // 滚动到底部
 }
 
-
-function updateStatus(rtcConn){
-	// 更新连接状态
+function updateStatus(rtcConn) {
+    // 更新连接状态、连接模式及速率信息
     rtcConn.onconnectionstatechange = function() {
-        document.getElementById('status').value = ('连接状态：' + rtcConn.connectionState);
+        let status;
+        if (rtcConn.connectionState === 'connected' || rtcConn.connectionState === 'completed') {
+            status = '已连接';
+        } else {
+            status = '断开';
+        }
+        document.getElementById('status').innerText = `连接状态：${status}`;
+        updateLog(`连接状态：${status}`);
     };
 
-	// 更新连接模式
-	rtcConn.onicecandidate = function(event) {
-		if (event.candidate) {
-			let mode;
-			if (event.candidate.type === 'relay') {
-				mode = '通过 TURN 服务器中继';
-				// 显示详细的 ICE 候选信息
-				let details = `候选类型: ${event.candidate.type}, 地址: ${event.candidate.address}, 端口: ${event.candidate.port}, 协议: ${event.candidate.protocol}`;
-				document.getElementById('mode').value = '连接模式：' + mode + '，' + details;
-			} else {
-				mode = 'P2P 直连';
-				document.getElementById('mode').value = '连接模式：' + mode;
-			}
-		}
-	};
+    rtcConn.onicecandidate = function(event) {
+        if (event.candidate) {
+            let mode;
+            let details;
+            if (event.candidate.type === 'relay') {
+                mode = '通过 TURN 服务器中继';
+                details = `地址: ${event.candidate.address}, 端口: ${event.candidate.port}, 协议: ${event.candidate.protocol}`;
+            } else {
+                mode = 'P2P 直连';
+                details = `本地地址: ${event.candidate.address}, 端口: ${event.candidate.port}, 协议: ${event.candidate.protocol}`;
+            }
+            let statusMessage = `连接状态：${rtcConn.connectionState === 'connected' || rtcConn.connectionState === 'completed' ? '已连接' : '断开'}，连接模式：${mode}，${details}`;
+            document.getElementById('status').innerText = statusMessage;
+            updateLog(statusMessage);
+        }
+    };
 
-
-    // 更新连接速率（这需要定期更新，例如每秒）
+    // 每秒更新连接速率信息
     setInterval(() => {
         rtcConn.getStats(null).then(stats => {
+            let downloadSpeed = 0;
+            let uploadSpeed = 0;
+
             stats.forEach(report => {
                 if (report.type === 'inbound-rtp' && !report.isRemote) {
-                    const currentSpeed = report.bytesReceived / report.timestamp;
-                    document.getElementById('speed').value = ('下载速率：' + currentSpeed.toFixed(2) + ' bytes/s');
+                    downloadSpeed = report.bytesReceived;
                 }
                 if (report.type === 'outbound-rtp' && !report.isRemote) {
-                    const currentSpeed = report.bytesSent / report.timestamp;
-                    document.getElementById('speed').value = ('上传速率：' + currentSpeed.toFixed(2) + ' bytes/s');
+                    uploadSpeed = report.bytesSent;
                 }
             });
+
+            let statusMessage = `连接状态：${rtcConn.connectionState === 'connected' || rtcConn.connectionState === 'completed' ? '已连接' : '断开'}，下载速率：${(downloadSpeed / 1024).toFixed(2)} KB/s，上传速率：${(uploadSpeed / 1024).toFixed(2)} KB/s`;
+            document.getElementById('status').innerText = statusMessage;
         });
     }, 1000);
 }
