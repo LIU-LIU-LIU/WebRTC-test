@@ -226,8 +226,8 @@ async function upload_f() {
 
 
 	// 获取RTCPeerConnection实例
-//    const peerConnection = call.peerConnection;
-//	updateStatus(peerConnection);
+    const peerConnection = call.peerConnection;
+	updateStatus(peerConnection);
 	updateLog('启用状态更新');
     // 找到音频轨道的RTCRtpSender
     const audioTrack = localStream.getAudioTracks()[0];
@@ -263,8 +263,8 @@ function download_f() {
                 updateLog('自动播放失败:', err);
             });
 			//在相应的回调中获取 RTCPeerConnection 对象
-//			rtcConn = call.peerConnection;
-//			updateStatus(rtcConn);
+			rtcConn = call.peerConnection;
+			updateStatus(rtcConn);
 			updateLog('启用状态更新');
         });
 
