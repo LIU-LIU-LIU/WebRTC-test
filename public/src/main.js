@@ -57,7 +57,7 @@ function initPeer(savedPeerId = null, roomId = null) {
 		path: process.env.PEERJS_PATH,
 		secure: location.protocol === 'https:', // 如果是 HTTPS，则设置为 true
 		key: process.env.PEERJS_KEY,
-        config: { 'iceServers': iceServers, 'iceTransportPolicy': 'all' } // 设置为 "all" 允许P2P和中继，设置为 "relay" 则强制使用TURN
+        config: { 'iceServers': iceServers, 'iceTransportPolicy': 'relay' } // 设置为 "all" 允许P2P和中继，设置为 "relay" 则强制使用TURN
 	});
 
     peer.on('open', (id) => {
