@@ -1,37 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>WebRTC-Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WebRTC 测试页</title>
 </head>
 <body>
-
-<div class="container"> 
-    <div class="video-container">
-        <video id="localVideo" autoplay muted></video>
-        <video id="remoteVideo" autoplay controls></video>
-        <br>
-        <button id="up">采集流</button>
-        <button id="do">接收流</button>
+<main class="app">
+    <header class="topbar"><div><h1>WebRTC 测试页</h1><p id="identity">正在初始化…</p></div><div class="room-info"><span id="population">房主 0 · 成员 0</span><span id="status" class="badge neutral" role="status">准备中</span></div></header>
+    <div class="workspace">
+        <section class="screen-panel panel">
+            <div class="panel-heading"><h2>共享画面</h2><span id="sharingState">未共享</span></div>
+            <div id="stage" class="stage"><video id="video" autoplay playsinline controls></video><div id="emptyState" class="empty-state"><strong>等待共享画面</strong><p id="emptyHint">房主开始共享后，画面将在这里显示</p></div><button id="playButton" class="play-button" hidden>点击播放画面与声音</button></div>
+            <div class="toolbar"><div class="actions"><button id="startShare" class="primary" disabled>开始共享</button><button id="stopShare" class="danger" hidden>停止共享</button><button id="reconnect" hidden>重新加入</button><button id="leave" hidden>离开房间</button><button id="fullscreen">全屏画面</button></div><span id="audioHint">共享声音需在浏览器中勾选</span></div>
+            <div id="invite" class="invite"><label for="roomUrl">邀请链接</label><input id="roomUrl" readonly placeholder="连接后生成邀请链接"><button id="copyUrl" disabled>复制链接</button></div>
+            <section class="metrics-section"><div class="panel-heading"><h2>连接与质量</h2><span id="metricsHint">每秒更新 · 绿色良好 / 黄色一般 / 红色较差</span></div><div id="metrics" class="metrics"></div></section>
+        </section>
+        <aside class="side-panel panel">
+            <section class="members-section"><div class="panel-heading"><h2>在线用户</h2><span>最多 8 位成员</span></div><div id="members" class="members"></div></section>
+            <section class="chat-section"><div class="panel-heading"><h2>房间聊天</h2><span id="chatState">连接中</span></div><div id="chatBox" class="chat-box" role="log" aria-label="聊天消息"></div><button id="newMessages" class="new-messages" hidden>有新消息 · 滚动到底部</button><form id="chatForm"><label class="sr-only" for="chatInput">聊天内容</label><textarea id="chatInput" rows="2" maxlength="2000" placeholder="输入消息，Enter 发送" disabled></textarea><div class="compose-footer"><span>Shift + Enter 换行</span><button id="sendMessage" type="submit" class="primary" disabled>发送</button></div></form></section>
+        </aside>
     </div>
-
-    <div class="chat-container">
-      <input id="room_url" type="text"/><br>
-      <button id="copy_url">复制URL到剪切板</button>
-
-        <textarea id="chatBox" readonly></textarea>
-        <input type="text" id="chatInput" placeholder="输入消息">
-        <button id="sendMessage">发送消息</button>
-    </div>
-</div> 
-
-<div id="logContainer">
-    <h3>日志</h3>
-    <div id="statusContainer">
-        <span id="status" class="status-info">链接状态: </span>
-    </div>
-    <textarea id="log" readonly style="width:100%; height:100px;"></textarea>
-</div>
-
+    <details class="logs panel"><summary>运行日志 <span>连接与共享事件</span></summary><div class="log-toolbar"><button id="copyLog">复制日志</button><button id="clearLog">清空</button></div><pre id="log" aria-label="运行日志"></pre></details>
+</main>
 </body>
 </html>
